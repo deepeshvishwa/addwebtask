@@ -1,0 +1,81 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for Add Web Solution Task module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_help().
+ */
+function addwebtask_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the addwebtask module.
+    case 'help.page.addwebtask':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('WFH Drupal Practical Assignment - AddWeb Solution Pvt Ltd. For more details please follow readme file incuded in with this module.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function addwebtask_form_system_site_information_settings_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Get default value if not set in site info form.
+  $default_site_api_key = \Drupal::config('addwebtask.configuration')->get('site_api_key');
+
+  // Get site api key field value put by admin.
+  $site_api_key = \Drupal::config('addwebtask.site')->get('siteapikey');
+
+  // Add site api key field in site info form.
+  $form['site_information']['site_api_key'] = [
+    '#type' => 'textfield',
+    '#title' => t('Site API Key'),
+    '#default_value' => !empty($site_api_key) ? $site_api_key : $default_site_api_key,
+  ];
+
+  // Check site api key value set or not, if set change button label.
+  if (!empty($site_api_key) && $site_api_key !== $default_site_api_key) {
+    $form['actions']['submit']['#value'] = t('Update Configuration');
+  }
+
+  // Custom validate function.
+  $form['#validate'][] = 'addwebtask_system_site_information_settings_form_validate';
+  // Custom Submit function.
+  $form['#submit'][] = 'addwebtask_system_site_information_settings_submit';
+}
+
+/**
+ * Implements hook_form_validate().
+ */
+function addwebtask_system_site_information_settings_form_validate($form, FormStateInterface &$form_state) {
+  // Get default value if not set in site info form.
+  $default_site_api_key = \Drupal::config('addwebtask.configuration')->get('site_api_key');
+
+  // Get form state values.
+  $values = $form_state->getValues();
+
+  // Validate site api key value.
+  if (empty($values['site_api_key']) || ($values['site_api_key'] == $default_site_api_key)) {
+    $form_state->setErrorByName('site_api_key', t('Please enter site api key value.'));
+  }
+}
+
+/**
+ * Implements hook_form_submit().
+ */
+function addwebtask_system_site_information_settings_submit($form, FormStateInterface $form_state) {
+  // Get form state values.
+  $values = $form_state->getValues();
+
+  // Set site api key values in variable.
+  \Drupal::configFactory()->getEditable('addwebtask.site')->set('siteapikey', $values['site_api_key'])->save();
+  drupal_set_message(t('Site API Key @site_api_key has been saved.', ['@site_api_key' => $values['site_api_key']]));
+}

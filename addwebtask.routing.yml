@@ -1,0 +1,7 @@
+addwebtask.addwebtask_controller_page_json:
+  path: '/page_json/{key}/{nid}'
+  defaults:
+    _title: 'Page with valid json'
+    _controller: '\Drupal\addwebtask\Controller\AddwebtaskController::addwebtask_page_json'
+  requirements:
+    _permission: 'access content'

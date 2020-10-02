@@ -1,0 +1,6 @@
+name: Add Web Solution Task
+type: module
+description: This is custom module as a task developing for Add Web Solution.
+package: Custom
+core: 8.x
+core_version_requirement: ^8 || ^9
